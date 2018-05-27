@@ -1,8 +1,12 @@
 import R from "ramda";
+import { Decimal } from 'decimal.js';
 
 const appendToProp = (prop, o) => v => R.assoc(
     prop, R.append(v, o[prop]), o
 );
+const toDecimal = R.construct(Decimal);
+const toDate= R.constructN(1, Date);
+
 const accountRE = /^account (.*)$/;
 const commodityRE = /^commodity (.*)$/;
 const priceRE = /^P (\S+ \S+) (\S+) \$(\d+\.\d+)$/;
@@ -12,8 +16,10 @@ const transactionRE = /^(\d{4}\/\d{2}\/\d{2}) ([^\n]+)\n([\s\S]+?)$/;
 const prefixPostingRE = /^\s{2,}(.+\S)\s{2,}([^\d\.])([\d\.]+)$/;
 // commodity is postfixed
 const postfixPostingRE = /^\s{2,}(.+\S)\s{2,}([\d\.]+) (.+)$/;
+// there is no amount
 const implicitPostingRE = /^\s{2,}(.+)$/;
-const pricedPostingRE = /^\s{2,}(.+)\S\s{2,}(.+) (.+) @ (.+)$/;
+// the commodity is priced
+const pricedPostingRE = /^\s{2,}(.+\S)\s{2,}(.+) (.+) @ \$(.+)$/;
 const linesAndTransactionsRE = /\n(?=\S)|\n\n/;
 
 const parseAccount = parsed => R.compose(
@@ -28,7 +34,11 @@ const parseCommodity = parsed => R.compose(
 );
 const parsePrice = parsed => R.compose(
   appendToProp("prices", parsed),
-  groups => ({"date": groups[1], "symbol": groups[2], "price": groups[3]}),
+  groups => ({
+    date: toDate(groups[1]),
+    symbol: groups[2],
+    price: toDecimal(groups[3])
+  }),
   R.match(priceRE)
 );
 
@@ -36,40 +46,40 @@ const append = R.flip(R.append);
 
 const parsePrefixPosting = R.compose(
   groups => ({
-    "account": groups[1],
-    "commodity": groups[2],
-    "amount": groups[3],
-    "price": ""
+    account: groups[1],
+    commodity: groups[2],
+    amount: toDecimal(groups[3]),
+    price: undefined
   }),
   R.match(prefixPostingRE)
 );
 
 const parsePostfixPosting = R.compose(
   groups => ({
-    "account": groups[1],
-    "commodity": groups[3],
-    "amount": groups[2],
-    "price": ""
+    account: groups[1],
+    commodity: groups[3],
+    amount: toDecimal(groups[2]),
+    price: undefined
   }),
   R.match(postfixPostingRE)
 );
 
 const parsePricedPosting = R.compose(
   groups => ({
-    "account": groups[1],
-    "commodity": groups[3],
-    "amount": groups[2],
-    "price": groups[4]
+    account: groups[1],
+    commodity: groups[3],
+    amount: toDecimal(groups[2]),
+    price: toDecimal(groups[4])
   }),
   R.match(pricedPostingRE)
 );
 
 const parseImplicitPosting = R.compose(
   groups => ({
-    "account": groups[1],
-    "commodity": "",
-    "amount": "",
-    "price": ""
+    account: groups[1],
+    commodity: undefined,
+    amount: undefined,
+    price: undefined
   }),
   R.match(implicitPostingRE)
 );
@@ -93,9 +103,9 @@ const parsePostings = R.compose(
 const parseTransaction = parsed => R.compose(
   appendToProp("transactions", parsed),
   groups => ({
-    "date": groups[1],
-    "desc": groups[2],
-    "postings": parsePostings(groups[3])
+    date: toDate(groups[1]),
+    desc: groups[2],
+    postings: parsePostings(groups[3])
   }),
   R.match(transactionRE)
 );
@@ -109,10 +119,10 @@ const parseLine = (acc, val) => R.cond([
 ])(val);
 
 const parsedLines = {
-  "accounts": [],
-  "commodities": [],
-  "prices": [],
-  "transactions": [],
+  accounts: [],
+  commodities: [],
+  prices: [],
+  transactions: [],
 }
 const parse = R.compose(
   R.reduce(parseLine, parsedLines),
