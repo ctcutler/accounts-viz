@@ -1,0 +1,29 @@
+account ATM Withdrawals
+account Assets
+account Assets:Savings Account
+account Equity:Initial Balances
+account Income:Retirement Contributions
+
+commodity $
+
+P 2018/01/21 00:00:00 QCEQIX $231.11
+P 2018/01/21 00:00:00 QCEQRX $227.55
+P 2018/01/21 00:00:00 VTIVX $23.53
+P 2018/01/21 00:00:00 TTFIX $13.29
+P 2018/02/25 00:00:00 QCEQIX $226.05
+P 2018/02/25 00:00:00 QCEQRX $220.34
+P 2018/02/25 00:00:00 VTIVX $22.98
+P 2018/02/25 00:00:00 TTFIX $13.03
+
+2014/01/02 Initial Balances
+  Assets:Savings Account    146.0640 QCEQRX
+  Equity:Initial Balances
+
+2014/01/03 Cash from Contribution
+  Assets:Savings Account    $199.99924280
+  Income:Retirement Contributions
+
+2014/01/03 Buy QCEQRX with cash from Contribution
+  Assets:Savings Account    1.4005 QCEQRX @ $142.8056
+  Assets:Savings Account
+
