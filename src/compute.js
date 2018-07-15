@@ -24,9 +24,9 @@ import { Decimal } from 'decimal.js';
  *
  * processing order
  * - for every non-derived series
- *   - filter by account
- *   - filter to time range
- *   - fill in implicit postings
+ *   x filter by account
+ *   x filter to time range
+ *   - fill in implicit amounts
  *   - aggregate to specified granularity
  *   - fill in missing data points
  *   - (optional) accumulate values
@@ -64,4 +64,29 @@ const filterByTime = (start, end) => R.compose(
   R.filter(transactionAfter(start))
 );
 
-export { filterByAccount, filterByTime };
+const mergeLeft = R.flip(R.merge);
+
+/* Input: transaction with 1 amount-less posting
+ * Output: transaction with amount-less posting set to negated sum of other posting amounts
+ */
+const balanceTransaction = transaction => {
+  const postings = transaction.postings;
+  const sum = R.reduce((acc, val) => acc.add(val.amount || 0), new Decimal(0), postings);
+  const amount = sum.negated();
+  const commodity = R.compose(
+    R.head,
+    R.filter(x => x !== undefined),
+    R.map(R.prop('commodity'))
+  )(postings);
+  const updateIndex = R.findIndex(R.propEq('amount', undefined), postings);
+  const postingUpdate = { amount, commodity };
+  const balancedPostings = R.adjust(mergeLeft(postingUpdate), updateIndex, postings);
+  return R.assoc('postings', balancedPostings, transaction);
+};
+
+/* Input: list of transactions
+ * Output: list of balanced transactions
+ */
+const balance = R.map(balanceTransaction);
+
+export { filterByAccount, filterByTime, balance };
