@@ -10,10 +10,13 @@ it('filters by account', () => {
   expect(transactions.length).toBe(1);
 });
 
-/*
 it('filters by time', () => {
   const fileContent = fs.readFileSync('src/test.dat', 'utf8');
   const parsed = parse(fileContent);
-  console.log(filterByTime(parsed).transactions[0].postings);
+  const d1 = new Date("2014/01/02");
+  const d2 = new Date("2014/01/03");
+  expect(filterByTime(d1, d2)(parsed.transactions).length).toBe(3);
+  expect(filterByTime(d1, d1)(parsed.transactions).length).toBe(1);
+  expect(filterByTime(d1, null)(parsed.transactions).length).toBe(3);
+  expect(filterByTime(null, d2)(parsed.transactions).length).toBe(3);
 });
-*/

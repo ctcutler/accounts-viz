@@ -45,11 +45,23 @@ const transactionHasAccount = accountRE => R.compose(
   R.prop('postings')
 );
 
+const transactionBefore = date => transaction => date === null || date >= transaction.date;
+const transactionAfter = date => transaction => date === null || date <= transaction.date;
+
 /* Input: pattern, list of transactions
  * Output: list of transactions having postings having accounts that match RE
  */
 const filterByAccount = accountRE => R.filter(transactionHasAccount(accountRE));
 
-const filterByTime = x => R.identity(x);
+/* Input: start, end, list of transactions
+ * Output:
+ * - list of transactions that occurred between start and end
+ *   - endpoints are included
+ *   - null start or end means open-ended range
+ */
+const filterByTime = (start, end) => R.compose(
+  R.filter(transactionBefore(end)),
+  R.filter(transactionAfter(start))
+);
 
 export { filterByAccount, filterByTime };
