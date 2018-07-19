@@ -1,5 +1,6 @@
 import R from "ramda";
-import { Decimal } from 'decimal.js';
+import moment from "moment";
+import { Decimal } from "decimal.js";
 
 /*
  * target visualizations
@@ -26,9 +27,10 @@ import { Decimal } from 'decimal.js';
  * - for every non-derived series
  *   x filter by account
  *   x filter to time range
- *   - fill in implicit amounts
- *   - aggregate to specified granularity
- *   - fill in missing data points
+ *   x convert everything to USD
+ *   x fill in implicit amounts
+ *   x data points in specified granularity
+ *   - add empty data points (internal and external)
  *   - (optional) accumulate values
  * - derived series
  */
@@ -64,20 +66,38 @@ const filterByTime = (start, end) => R.compose(
   R.filter(transactionAfter(start))
 );
 
+const postingToDollars = prices => posting => {
+  if (posting.commodity === undefined || posting.commodity === '$') {
+    return posting;
+  }
+  const pricesLookup = R.reduce((acc, val) => R.assoc(val.symbol, val.price, acc), {}, prices);
+  const price = posting.price ? posting.price : pricesLookup[posting.commodity];
+  return R.merge(posting, {commodity: '$', amount: posting.amount.mul(price), price: undefined});
+};
+
+/* Input: list of transactions with arbitrary commodities
+ * Output: list of transactions in single commodity
+ */
+const toDollars = prices => R.map(
+  transaction => R.assoc(
+    'postings',
+    R.map(postingToDollars(prices), transaction.postings),
+    transaction
+  )
+);
+
 const mergeLeft = R.flip(R.merge);
 
-/* Input: transaction with 1 amount-less posting
- * Output: transaction with amount-less posting set to negated sum of other posting amounts
+const reducePosting = (acc, v) => acc.add(v.amount);
+
+/* Input: transaction with final posting lacking amount
+ * Output: transaction with final posting set to negated sum of other posting amounts
  */
 const balanceTransaction = transaction => {
   const postings = transaction.postings;
-  const sum = R.reduce((acc, val) => acc.add(val.amount || 0), new Decimal(0), postings);
+  const sum = R.reduce(reducePosting, new Decimal(0), R.init(postings));
   const amount = sum.negated();
-  const commodity = R.compose(
-    R.head,
-    R.filter(x => x !== undefined),
-    R.map(R.prop('commodity'))
-  )(postings);
+  const commodity = '$';
   const updateIndex = R.findIndex(R.propEq('amount', undefined), postings);
   const postingUpdate = { amount, commodity };
   const balancedPostings = R.adjust(mergeLeft(postingUpdate), updateIndex, postings);
@@ -89,4 +109,23 @@ const balanceTransaction = transaction => {
  */
 const balance = R.map(balanceTransaction);
 
-export { filterByAccount, filterByTime, balance };
+const startOf = unit => d => moment(d).startOf(unit).toDate();
+const decimalAdd = (x, y) => x.add(y);
+
+/* Input: time granularity (day|week|month|quarter|year), list of transactions
+ * Output: list of datapoint objects in that granularity
+ */
+const dataPoints = granularity => R.compose(
+  R.sortBy(R.head),
+  R.map(pair => [new Date(pair[0]), pair[1]]),
+  R.toPairs,
+  R.reduce(R.mergeWith(decimalAdd), {}),
+  R.map(
+    trans => R.objOf(
+      startOf(granularity)(trans.date).toString(),
+      R.last(trans.postings).amount.negated()
+    )
+  )
+);
+
+export { filterByAccount, filterByTime, toDollars, balance, dataPoints };
