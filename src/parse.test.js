@@ -56,7 +56,7 @@ it('parses transactions', () => {
     ]
   });
   expect(transactions[1]).toEqual({
-    date: new Date("2014/01/03"),
+    date: new Date("2014/01/04"),
     desc: "Cash from Contribution",
     postings: [
       {
@@ -74,7 +74,7 @@ it('parses transactions', () => {
     ]
   });
   expect(transactions[2]).toEqual({
-    date: new Date("2014/01/03"),
+    date: new Date("2014/01/04"),
     desc: "Buy QCEQRX with cash from Contribution",
     postings: [
       {

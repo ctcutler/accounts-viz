@@ -30,7 +30,7 @@ import { Decimal } from "decimal.js";
  *   x convert everything to USD
  *   x fill in implicit amounts
  *   x data points in specified granularity
- *   - add empty data points (internal and external)
+ *   x add empty data points (internal and external)
  *   - (optional) accumulate values
  * - derived series
  */
@@ -128,4 +128,21 @@ const dataPoints = granularity => R.compose(
   )
 );
 
-export { filterByAccount, filterByTime, toDollars, balance, dataPoints };
+const addTime = (d, n, granularity) => moment(d).add(n, granularity).toDate();
+const difference = (start, end, granularity) => moment(end).diff(moment(start), granularity);
+
+/* Input: granularity, start, end, list of data points
+ * Output: list of data points from start to end with all missing dates filled in
+ */
+const addEmptyPoints = (granularity, start, end) => points => {
+  // mapping of existing dates and values
+  const existing = R.compose(R.fromPairs, R.map(R.adjust(date => date.toString(), 0)))(points);
+  // number of time units between start and end + 1 (since end is included)
+  const duration = difference(start, end, granularity) + 1;
+  // list of dates in time range at this granularity
+  const dates = R.times(n => addTime(start, n, granularity), duration);
+  // full set of data points including empty ones
+  return R.map(d => [d, R.defaultTo(Decimal(0), existing[d.toString()])], dates);
+};
+
+export { filterByAccount, filterByTime, toDollars, balance, dataPoints, addEmptyPoints };
