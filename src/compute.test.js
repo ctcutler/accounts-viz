@@ -1,6 +1,8 @@
 import R from "ramda";
 import { parse } from './parse';
-import { filterByAccount, filterByTime, toDollars, balance, dataPoints, addEmptyPoints } from './compute';
+import {
+  filterByAccount, filterByTime, toDollars, balance, dataPoints, addEmptyPoints, accumulateValues
+} from './compute';
 import { Decimal } from 'decimal.js';
 import fs from 'fs';
 
@@ -83,3 +85,17 @@ it('fills in missing data points', () => {
   ]);
 });
 
+it('accumulates data points', () => {
+  const fileContent = fs.readFileSync('src/test.dat', 'utf8');
+  const parsed = parse(fileContent);
+  const transactions = R.compose(
+    balance,
+    toDollars(parsed.prices)
+  )(parsed.transactions);
+  const points = dataPoints('day')(transactions);
+  const accumulated = accumulateValues(points);
+  expect(accumulated).toEqual([
+    [new Date("2014/01/02"), new Decimal('32183.74176')],
+    [new Date("2014/01/04"), new Decimal('32583.7402456')],
+  ]);
+});

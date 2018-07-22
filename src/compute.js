@@ -31,7 +31,7 @@ import { Decimal } from "decimal.js";
  *   x fill in implicit amounts
  *   x data points in specified granularity
  *   x add empty data points (internal and external)
- *   - (optional) accumulate values
+ *   x accumulate values
  * - derived series
  */
 
@@ -145,4 +145,17 @@ const addEmptyPoints = (granularity, start, end) => points => {
   return R.map(d => [d, R.defaultTo(Decimal(0), existing[d.toString()])], dates);
 };
 
-export { filterByAccount, filterByTime, toDollars, balance, dataPoints, addEmptyPoints };
+const mapIndexed = R.addIndex(R.map);
+const defaultToZero = R.defaultTo(Decimal(0));
+
+/* Input: list of data points
+ * Output: list of data points where every point's value is the sum of itself and all points that came before it
+ */
+const accumulateValues = mapIndexed(
+  (val, idx, l) => [val[0], idx > 0 ? val[1].add(l[idx-1][1]) : val[1]]
+);
+
+export {
+  filterByAccount, filterByTime, toDollars, balance, dataPoints, addEmptyPoints,
+  accumulateValues
+};
