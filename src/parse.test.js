@@ -36,7 +36,7 @@ it('parses prices', () => {
 it('parses transactions', () => {
   const fileContent = fs.readFileSync('src/test.dat', 'utf8');
   const transactions = parse(fileContent).transactions;
-  expect(transactions.length).toBe(3);
+  expect(transactions.length).toBe(4);
   expect(transactions[0]).toEqual({
     date: new Date("2014/01/02"),
     desc: "Initial Balances",
@@ -74,6 +74,24 @@ it('parses transactions', () => {
     ]
   });
   expect(transactions[2]).toEqual({
+    date: new Date("2014/01/04"),
+    desc: "ATM 123456",
+    postings: [
+      {
+        account: "Assets:NECU:Checking",
+        amount: new Decimal("-100.00"),
+        commodity: "$",
+        price: undefined
+      },
+      {
+        account: "Expenses:ATM Withdrawals",
+        amount: undefined,
+        commodity: undefined,
+        price: undefined
+      },
+    ]
+  });
+  expect(transactions[3]).toEqual({
     date: new Date("2014/01/04"),
     desc: "Buy QCEQRX with cash from Contribution",
     postings: [
