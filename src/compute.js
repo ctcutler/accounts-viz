@@ -1,4 +1,4 @@
-import R from "ramda";
+import * as R from 'ramda';
 import moment from "moment";
 import { Decimal } from "decimal.js";
 
@@ -146,7 +146,6 @@ const addEmptyPoints = (granularity, start, end) => points => {
 };
 
 const mapIndexed = R.addIndex(R.map);
-const defaultToZero = R.defaultTo(Decimal(0));
 
 /* Input: list of data points
  * Output: list of data points where every point's value is the sum of itself and all points that came before it
@@ -155,7 +154,28 @@ const accumulateValues = mapIndexed(
   (val, idx, l) => [val[0], idx > 0 ? val[1].add(l[idx-1][1]) : val[1]]
 );
 
+// transactions are [{date: Date, postings: [ { amount: Decimal, price: Decimal } ]
+// prices are  [{date: Date, price: Decimal}]
+const safeDecimal = val => val === undefined ? undefined : new Decimal(val);
+const safeDate = val => val === undefined ? undefined : new Date(val);
+const hydrateDecimal = prop => obj => R.assoc(prop, safeDecimal(obj[prop]), obj);
+const hydrateDate = prop => obj => R.assoc(prop, safeDate(obj[prop]), obj);
+const hydratePrice = R.compose(hydrateDecimal('price'), hydrateDate('date'));
+const hydratePosting = R.compose(hydrateDecimal('price'), hydrateDecimal('amount'));
+const hydrateTransaction = R.compose(
+  hydrateDate('date'),
+  t => R.assoc('postings', R.map(hydratePosting, t.postings), t)
+);
+
+/* Input: parsed data with strings for dates and amounts
+ * Output: parsed data with Dates and Decimals
+ */
+const hydrate = R.compose(
+  d => R.assoc('transactions', R.map(hydrateTransaction, d.transactions), d),
+  d => R.assoc('prices', R.map(hydratePrice, d.prices), d)
+)
+
 export {
   filterByAccount, filterByTime, toDollars, balance, dataPoints, addEmptyPoints,
-  accumulateValues
+  accumulateValues, hydrate
 };

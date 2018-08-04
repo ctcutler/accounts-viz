@@ -1,10 +1,20 @@
 import R from "ramda";
 import { parse } from './parse';
 import {
-  filterByAccount, filterByTime, toDollars, balance, dataPoints, addEmptyPoints, accumulateValues
+  filterByAccount, filterByTime, toDollars, balance, dataPoints, addEmptyPoints,
+  accumulateValues, hydrate
 } from './compute';
 import { Decimal } from 'decimal.js';
 import fs from 'fs';
+
+it('hydrates parsed data', () => {
+  const fileContent = fs.readFileSync('src/test.dat', 'utf8');
+  const parsed = parse(fileContent);
+  const jsonString = JSON.stringify(parsed);
+  const fromJson = JSON.parse(jsonString);
+  const hydrated = hydrate(fromJson);
+  expect(hydrated).toEqual(parsed);
+});
 
 it('filters by account', () => {
   const fileContent = fs.readFileSync('src/test.dat', 'utf8');
