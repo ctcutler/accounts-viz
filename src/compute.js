@@ -114,17 +114,26 @@ const decimalAdd = (x, y) => x.add(y);
 
 /* Input: time granularity (day|week|month|quarter|year), list of transactions
  * Output: list of datapoint objects in that granularity
+ *
+ * Works by building a list of postings that match the filtered account then combining
+ * them by date.
  */
-const dataPoints = granularity => R.compose(
+const dataPoints = (accountRE, granularity) => R.compose(
   R.sortBy(R.head),
   R.map(pair => [new Date(pair[0]), pair[1]]),
   R.toPairs,
   R.reduce(R.mergeWith(decimalAdd), {}),
+  R.unnest,
   R.map(
-    trans => R.objOf(
-      startOf(granularity)(trans.date).toString(),
-      R.last(trans.postings).amount.negated()
-    )
+    trans => R.compose(
+      R.map (
+        posting => R.objOf(
+          startOf(granularity)(trans.date).toString(),
+          posting.amount
+        )
+      ),
+      R.filter(postingHasAccount(accountRE))
+    )(trans.postings)
   )
 );
 

@@ -30,7 +30,7 @@ it('filters by time', () => {
     balance,
     toDollars(parsed.prices)
   )(parsed.transactions);
-  const points = dataPoints('day')(transactions);
+  const points = dataPoints(/^Assets/, 'day')(transactions);
   const d1 = new Date("2014/01/02");
   const d2 = new Date("2014/01/04");
   expect(filterByTime(d1, d2)(points).length).toBe(2);
@@ -75,10 +75,10 @@ it('makes data points', () => {
     balance,
     toDollars(parsed.prices)
   )(parsed.transactions);
-  const points = dataPoints('day')(transactions);
+  const points = dataPoints(/^Assets/, 'day')(transactions);
   expect(points).toEqual([
     [new Date("2014/01/02"), new Decimal('32183.74176')],
-    [new Date("2014/01/04"), new Decimal('299.9984856')]
+    [new Date("2014/01/04"), new Decimal('99.9992428')]
   ]);
 });
 
@@ -89,7 +89,7 @@ it('fills in missing data points', () => {
     balance,
     toDollars(parsed.prices)
   )(parsed.transactions);
-  const points = dataPoints('day')(transactions);
+  const points = dataPoints(/^Assets/, 'day')(transactions);
   const filledOut = addEmptyPoints(
     'day', new Date("2014/01/01"), new Date("2014/01/05")
   )(points);
@@ -97,7 +97,7 @@ it('fills in missing data points', () => {
     [new Date("2014/01/01"), new Decimal(0)],
     [new Date("2014/01/02"), new Decimal('32183.74176')],
     [new Date("2014/01/03"), new Decimal(0)],
-    [new Date("2014/01/04"), new Decimal('299.9984856')],
+    [new Date("2014/01/04"), new Decimal('99.99924280')],
     [new Date("2014/01/05"), new Decimal(0)]
   ]);
   const filledOut2 = addEmptyPoints(
@@ -106,7 +106,7 @@ it('fills in missing data points', () => {
   expect(filledOut2).toEqual([
     [new Date("2014/01/02"), new Decimal('32183.74176')],
     [new Date("2014/01/03"), new Decimal(0)],
-    [new Date("2014/01/04"), new Decimal('299.9984856')],
+    [new Date("2014/01/04"), new Decimal('99.99924280')],
   ]);
 });
 
@@ -117,11 +117,11 @@ it('accumulates data points', () => {
     balance,
     toDollars(parsed.prices)
   )(parsed.transactions);
-  const points = dataPoints('day')(transactions);
+  const points = dataPoints(/^Assets/, 'day')(transactions);
   const accumulated = accumulateValues(points);
   expect(accumulated).toEqual([
     [new Date("2014/01/02"), new Decimal('32183.74176')],
-    [new Date("2014/01/04"), new Decimal('32483.7402456')],
+    [new Date("2014/01/04"), new Decimal('32283.7410028')],
   ]);
   const input = [
     [new Date("2014/01/04"), new Decimal(1)],
