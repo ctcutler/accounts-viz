@@ -11,14 +11,15 @@ class App extends Component {
   componentDidMount() {
     const { prices, transactions } = hydrate(parsed);
     const granularity = 'month';
+    const pattern = /^Assets/;
     const dataPairs = R.compose(
       //filterByTime(new Date("2017/01/01"), new Date("2017/01/31")),
       accumulateValues,
       addEmptyPoints(granularity, new Date("2014/01/01"), new Date("2018/09/01")),
-      dataPoints(granularity),
+      dataPoints(pattern, granularity),
       balance,
       toDollars(prices),
-      filterByAccount(/^Assets/)
+      filterByAccount(pattern)
     )(transactions);
 
     /* Input: format function, index, list of data points
