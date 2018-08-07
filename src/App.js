@@ -12,13 +12,13 @@ class App extends Component {
     const ctx = document.getElementById("myChart").getContext('2d');
     const { prices, transactions } = hydrate(parsed);
     const dataPairs = R.compose(
+      //filterByTime(new Date("2017/01/01"), new Date("2017/01/31")),
       accumulateValues,
-      addEmptyPoints('day', new Date("2017/01/01"), new Date("2017/01/31")),
-      dataPoints('day'),
+      //addEmptyPoints('day', new Date("2017/01/01"), new Date("2017/01/31")),
+      dataPoints('year'),
       balance,
       toDollars(prices),
-      filterByAccount(/^Assets/),
-      filterByTime(new Date("2017/01/01"), new Date("2017/01/31"))
+      filterByAccount(/^Assets/)
     )(transactions);
     const labels = R.compose(R.map(x => x.toString()), R.pluck(0))(dataPairs);
     const data = R.compose(R.map(x => x.valueOf()), R.pluck(1))(dataPairs);

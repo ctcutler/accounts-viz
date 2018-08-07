@@ -47,23 +47,23 @@ const transactionHasAccount = accountRE => R.compose(
   R.prop('postings')
 );
 
-const transactionBefore = date => transaction => date === null || date >= transaction.date;
-const transactionAfter = date => transaction => date === null || date <= transaction.date;
+const dataPointBefore = date => point => date === null || date >= point[0];
+const dataPointAfter = date => point => date === null || date <= point[0];
 
 /* Input: pattern, list of transactions
  * Output: list of transactions having postings having accounts that match RE
  */
 const filterByAccount = accountRE => R.filter(transactionHasAccount(accountRE));
 
-/* Input: start, end, list of transactions
+/* Input: start, end, list of data points
  * Output:
- * - list of transactions that occurred between start and end
+ * - list of datap oints that occurred between start and end
  *   - endpoints are included
  *   - null start or end means open-ended range
  */
 const filterByTime = (start, end) => R.compose(
-  R.filter(transactionBefore(end)),
-  R.filter(transactionAfter(start))
+  R.filter(dataPointBefore(end)),
+  R.filter(dataPointAfter(start))
 );
 
 const postingToDollars = prices => posting => {
@@ -129,29 +129,36 @@ const dataPoints = granularity => R.compose(
 );
 
 const addTime = (d, n, granularity) => moment(d).add(n, granularity).toDate();
-const difference = (start, end, granularity) => moment(end).diff(moment(start), granularity);
+const dateDiff = (start, end, granularity) => moment(end).diff(moment(start), granularity);
+const dateMap = R.compose(R.fromPairs, R.map(R.adjust(date => date.toString(), 0)));
 
 /* Input: granularity, start, end, list of data points
  * Output: list of data points from start to end with all missing dates filled in
  */
 const addEmptyPoints = (granularity, start, end) => points => {
-  // mapping of existing dates and values
-  const existing = R.compose(R.fromPairs, R.map(R.adjust(date => date.toString(), 0)))(points);
-  // number of time units between start and end + 1 (since end is included)
-  const duration = difference(start, end, granularity) + 1;
-  // list of dates in time range at this granularity
-  const dates = R.times(n => addTime(start, n, granularity), duration);
-  // full set of data points including empty ones
-  return R.map(d => [d, R.defaultTo(Decimal(0), existing[d.toString()])], dates);
+  const existingMap = dateMap(points);
+  const count = dateDiff(start, end, granularity) + 1;
+  const dates = R.times(n => addTime(start, n, granularity), count);
+  const newPoints = R.map(d => [d, R.defaultTo(Decimal(0), existingMap[d.toString()])], dates);
+  const newMap = dateMap(newPoints);
+  const merged = R.merge(existingMap, newMap);
+  return R.compose(
+    R.sortBy(R.head),
+    R.map(p => [new Date(p[0]), p[1]]),
+    R.toPairs
+  )(merged);
 };
-
-const mapIndexed = R.addIndex(R.map);
 
 /* Input: list of data points
  * Output: list of data points where every point's value is the sum of itself and all points that came before it
  */
-const accumulateValues = mapIndexed(
-  (val, idx, l) => [val[0], idx > 0 ? val[1].add(l[idx-1][1]) : val[1]]
+const accumulateValues = R.reduce(
+  R.ifElse(
+    (acc, val) => acc.length > 0,
+    (acc, val) => R.append([val[0], val[1].add(R.last(acc)[1])], acc),
+    (acc, val) => R.append([val[0], val[1]], acc)
+  ),
+  []
 );
 
 // transactions are [{date: Date, postings: [ { amount: Decimal, price: Decimal } ]

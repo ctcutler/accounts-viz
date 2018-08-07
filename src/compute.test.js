@@ -26,12 +26,17 @@ it('filters by account', () => {
 it('filters by time', () => {
   const fileContent = fs.readFileSync('src/test.dat', 'utf8');
   const parsed = parse(fileContent);
+  const transactions = R.compose(
+    balance,
+    toDollars(parsed.prices)
+  )(parsed.transactions);
+  const points = dataPoints('day')(transactions);
   const d1 = new Date("2014/01/02");
   const d2 = new Date("2014/01/04");
-  expect(filterByTime(d1, d2)(parsed.transactions).length).toBe(4);
-  expect(filterByTime(d1, d1)(parsed.transactions).length).toBe(1);
-  expect(filterByTime(d1, null)(parsed.transactions).length).toBe(4);
-  expect(filterByTime(null, d2)(parsed.transactions).length).toBe(4);
+  expect(filterByTime(d1, d2)(points).length).toBe(2);
+  expect(filterByTime(d1, d1)(points).length).toBe(1);
+  expect(filterByTime(d1, null)(points).length).toBe(2);
+  expect(filterByTime(null, d2)(points).length).toBe(2);
 });
 
 it('converts to dollars', () => {
@@ -95,6 +100,14 @@ it('fills in missing data points', () => {
     [new Date("2014/01/04"), new Decimal('299.9984856')],
     [new Date("2014/01/05"), new Decimal(0)]
   ]);
+  const filledOut2 = addEmptyPoints(
+    'day', new Date("2014/01/03"), new Date("2014/01/03")
+  )(points);
+  expect(filledOut2).toEqual([
+    [new Date("2014/01/02"), new Decimal('32183.74176')],
+    [new Date("2014/01/03"), new Decimal(0)],
+    [new Date("2014/01/04"), new Decimal('299.9984856')],
+  ]);
 });
 
 it('accumulates data points', () => {
@@ -109,5 +122,20 @@ it('accumulates data points', () => {
   expect(accumulated).toEqual([
     [new Date("2014/01/02"), new Decimal('32183.74176')],
     [new Date("2014/01/04"), new Decimal('32483.7402456')],
+  ]);
+  const input = [
+    [new Date("2014/01/04"), new Decimal(1)],
+    [new Date("2014/01/04"), new Decimal(1)],
+    [new Date("2014/01/04"), new Decimal(1)],
+    [new Date("2014/01/04"), new Decimal(1)],
+    [new Date("2014/01/04"), new Decimal(1)]
+  ];
+  const accumulated2 = accumulateValues(input);
+  expect(accumulated2).toEqual([
+    [new Date("2014/01/04"), new Decimal(1)],
+    [new Date("2014/01/04"), new Decimal(2)],
+    [new Date("2014/01/04"), new Decimal(3)],
+    [new Date("2014/01/04"), new Decimal(4)],
+    [new Date("2014/01/04"), new Decimal(5)]
   ]);
 });
