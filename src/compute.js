@@ -105,7 +105,9 @@ const balanceTransaction = prices => transaction => {
   const commodity = '$';
   const updateIndex = R.findIndex(R.propEq('amount', undefined), postings);
   const postingUpdate = { amount, commodity };
-  const balancedPostings = R.adjust(mergeLeft(postingUpdate), updateIndex, postings);
+  const balancedPostings = updateIndex === -1
+    ? postings
+    : R.adjust(mergeLeft(postingUpdate), updateIndex, postings);
 
   // convert all non-dollar postings to dollars using current prices
   const pricesLookup = R.reduce((acc, val) => R.assoc(val.symbol, val.price, acc), {}, prices);
