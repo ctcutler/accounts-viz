@@ -1,8 +1,7 @@
 import R from "ramda";
 import { parse } from './parse';
 import {
-  filterByAccount, filterByTime, toDollars, balance, dataPoints, addEmptyPoints,
-  accumulateValues, hydrate
+  filterByAccount, filterByTime, balance, dataPoints, addEmptyPoints, accumulateValues, hydrate
 } from './compute';
 import { Decimal } from 'decimal.js';
 import fs from 'fs';
@@ -26,10 +25,7 @@ it('filters by account', () => {
 it('filters by time', () => {
   const fileContent = fs.readFileSync('src/test.dat', 'utf8');
   const parsed = parse(fileContent);
-  const transactions = R.compose(
-    balance,
-    toDollars(parsed.prices)
-  )(parsed.transactions);
+  const transactions = balance(parsed.prices)(parsed.transactions);
   const points = dataPoints(/^Assets/, 'day')(transactions);
   const d1 = new Date("2014/01/02");
   const d2 = new Date("2014/01/04");
@@ -39,56 +35,39 @@ it('filters by time', () => {
   expect(filterByTime(null, d2)(points).length).toBe(2);
 });
 
-it('converts to dollars', () => {
-  const fileContent = fs.readFileSync('src/test.dat', 'utf8');
-  const parsed = parse(fileContent);
-  const inDollars = toDollars(parsed.prices)(parsed.transactions);
-  expect(inDollars[0].postings[0].amount).toEqual(new Decimal('32183.74176'));;
-  expect(inDollars[0].postings[0].commodity).toBe('$');
-  expect(inDollars[1].postings[0].amount).toEqual(new Decimal('199.99924280'));;
-  expect(inDollars[1].postings[0].commodity).toBe('$');
-  expect(inDollars[1].postings[1].amount).toBe(undefined);
-  expect(inDollars[1].postings[1].commodity).toBe(undefined);
-});
-
 it('balances', () => {
   const fileContent = fs.readFileSync('src/test.dat', 'utf8');
   const parsed = parse(fileContent);
-  const transactions = R.compose(
-    balance,
-    toDollars(parsed.prices)
-  )(parsed.transactions);
+  const transactions = balance(parsed.prices)(parsed.transactions);
+  expect(transactions[0].postings[0].commodity).toBe('$');
+  expect(transactions[0].postings[0].amount).toEqual(new Decimal('32183.74176'));
   expect(transactions[0].postings[1].commodity).toBe('$');
-  expect(transactions[0].postings[1].amount).toEqual(new Decimal('-32183.74176'));
+  expect(transactions[0].postings[1].amount).toEqual(new Decimal('-31959.6211584'));
   expect(transactions[1].postings[1].commodity).toBe('$');
   expect(transactions[1].postings[1].amount).toEqual(new Decimal('-199.99924280'));
   expect(transactions[2].postings[1].commodity).toBe('$');
   expect(transactions[2].postings[1].amount).toEqual(new Decimal('100'));
+  expect(transactions[3].postings[0].commodity).toBe('$');
+  expect(transactions[3].postings[0].amount).toEqual(new Decimal('308.58617'));
   expect(transactions[3].postings[1].commodity).toBe('$');
-  expect(transactions[3].postings[1].amount).toEqual(new Decimal('-199.99924280'));
+  expect(transactions[3].postings[1].amount).toEqual(new Decimal('-306.4372428'));
 });
 
 it('makes data points', () => {
   const fileContent = fs.readFileSync('src/test.dat', 'utf8');
   const parsed = parse(fileContent);
-  const transactions = R.compose(
-    balance,
-    toDollars(parsed.prices)
-  )(parsed.transactions);
+  const transactions = balance(parsed.prices)(parsed.transactions);
   const points = dataPoints(/^Assets/, 'day')(transactions);
   expect(points).toEqual([
     [new Date("2014/01/02"), new Decimal('32183.74176')],
-    [new Date("2014/01/04"), new Decimal('99.9992428')]
+    [new Date("2014/01/04"), new Decimal('102.14817')]
   ]);
 });
 
 it('fills in missing data points', () => {
   const fileContent = fs.readFileSync('src/test.dat', 'utf8');
   const parsed = parse(fileContent);
-  const transactions = R.compose(
-    balance,
-    toDollars(parsed.prices)
-  )(parsed.transactions);
+  const transactions = balance(parsed.prices)(parsed.transactions);
   const points = dataPoints(/^Assets/, 'day')(transactions);
   const filledOut = addEmptyPoints(
     'day', new Date("2014/01/01"), new Date("2014/01/05")
@@ -97,7 +76,7 @@ it('fills in missing data points', () => {
     [new Date("2014/01/01"), new Decimal(0)],
     [new Date("2014/01/02"), new Decimal('32183.74176')],
     [new Date("2014/01/03"), new Decimal(0)],
-    [new Date("2014/01/04"), new Decimal('99.99924280')],
+    [new Date("2014/01/04"), new Decimal('102.14817')],
     [new Date("2014/01/05"), new Decimal(0)]
   ]);
   const filledOut2 = addEmptyPoints(
@@ -106,22 +85,19 @@ it('fills in missing data points', () => {
   expect(filledOut2).toEqual([
     [new Date("2014/01/02"), new Decimal('32183.74176')],
     [new Date("2014/01/03"), new Decimal(0)],
-    [new Date("2014/01/04"), new Decimal('99.99924280')],
+    [new Date("2014/01/04"), new Decimal('102.14817')],
   ]);
 });
 
 it('accumulates data points', () => {
   const fileContent = fs.readFileSync('src/test.dat', 'utf8');
   const parsed = parse(fileContent);
-  const transactions = R.compose(
-    balance,
-    toDollars(parsed.prices)
-  )(parsed.transactions);
+  const transactions = balance(parsed.prices)(parsed.transactions);
   const points = dataPoints(/^Assets/, 'day')(transactions);
   const accumulated = accumulateValues(points);
   expect(accumulated).toEqual([
     [new Date("2014/01/02"), new Decimal('32183.74176')],
-    [new Date("2014/01/04"), new Decimal('32283.7410028')],
+    [new Date("2014/01/04"), new Decimal('32285.88993')],
   ]);
   const input = [
     [new Date("2014/01/04"), new Decimal(1)],

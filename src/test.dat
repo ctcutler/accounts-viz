@@ -16,7 +16,7 @@ P 2018/02/25 00:00:00 VTIVX $22.98
 P 2018/02/25 00:00:00 TTFIX $13.03
 
 2014/01/02 Initial Balances
-  Assets:Savings Account    146.0640 QCEQRX
+  Assets:Savings Account    146.0640 QCEQRX @ $218.8056
   Equity:Initial Balances
 
 2014/01/04 Cash from Contribution
@@ -28,6 +28,6 @@ P 2018/02/25 00:00:00 TTFIX $13.03
   Expenses:ATM Withdrawals
 
 2014/01/04 Buy QCEQRX with cash from Contribution
-  Assets:Savings Account    1.4005 QCEQRX @ $142.8056
+  Assets:Savings Account    1.4005 QCEQRX @ $218.8056
   Assets:Savings Account
 
