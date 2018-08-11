@@ -88,14 +88,14 @@ const toDollars = prices => R.map(
 
 const mergeLeft = R.flip(R.merge);
 
-const reducePosting = (acc, v) => acc.add(v.amount);
+const reducePosting = (acc, v) => acc.add(v.amount ? v.amount : new Decimal(0));
 
-/* Input: transaction with final posting lacking amount
- * Output: transaction with final posting set to negated sum of other posting amounts
+/* Input: transaction with one amount-less posting
+ * Output: transaction with amount-less posting set to negated sum of other posting amounts
  */
 const balanceTransaction = transaction => {
   const postings = transaction.postings;
-  const sum = R.reduce(reducePosting, new Decimal(0), R.init(postings));
+  const sum = R.reduce(reducePosting, new Decimal(0), postings);
   const amount = sum.negated();
   const commodity = '$';
   const updateIndex = R.findIndex(R.propEq('amount', undefined), postings);
