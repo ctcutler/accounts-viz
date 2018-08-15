@@ -2,8 +2,7 @@ import Chart from 'chart.js';
 import * as R from 'ramda';
 import parsed from './parsed';
 import {
-  filterByAccount, filterByTime, toDollars, balance, dataPoints, addEmptyPoints,
-  accumulateValues, hydrate
+  filterByAccount, balance, dataPoints, addEmptyPoints, accumulateValues, hydrate
 } from './compute';
 import React, { Component } from 'react';
 
@@ -11,14 +10,12 @@ class App extends Component {
   componentDidMount() {
     const { prices, transactions } = hydrate(parsed);
     const granularity = 'month';
-    const pattern = /^Assets/;
+    const pattern = /^Equity/; // FIXME: equity expenses income
     const dataPairs = R.compose(
-      //filterByTime(new Date("2017/01/01"), new Date("2017/01/31")),
       accumulateValues,
       addEmptyPoints(granularity, new Date("2014/01/01"), new Date("2018/09/01")),
       dataPoints(pattern, granularity),
-      balance,
-      toDollars(prices),
+      balance(prices),
       filterByAccount(pattern)
     )(transactions);
 

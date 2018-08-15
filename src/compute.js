@@ -68,10 +68,12 @@ const filterByTime = (start, end) => R.compose(
 
 const mergeLeft = R.flip(R.merge);
 
-const reducePosting = (acc, v) => {
+const reducePosting = pricesLookup => (acc, v) => {
   // use *commodity price at time of transaction* for balancing purposes
   if (v.amount && v.price) {
     return acc.add(v.amount.mul(v.price));
+  } else if (v.amount && v.commodity !== '$') {
+    return acc.add(v.amount.mul(pricesLookup[v.commodity]));
   } else if (v.amount) {
     return acc.add(v.amount);
   } else {
@@ -99,7 +101,8 @@ const balanceTransaction = prices => transaction => {
   const postings = transaction.postings;
 
   // sums posting using transaction-time prices for non-$ postings
-  const sum = R.reduce(reducePosting, new Decimal(0), postings);
+  const pricesLookup = R.reduce((acc, val) => R.assoc(val.symbol, val.price, acc), {}, prices);
+  const sum = R.reduce(reducePosting(pricesLookup), new Decimal(0), postings);
   const amount = sum.negated();
 
   const commodity = '$';
@@ -110,7 +113,6 @@ const balanceTransaction = prices => transaction => {
     : R.adjust(mergeLeft(postingUpdate), updateIndex, postings);
 
   // convert all non-dollar postings to dollars using current prices
-  const pricesLookup = R.reduce((acc, val) => R.assoc(val.symbol, val.price, acc), {}, prices);
   const convertedPostings = R.map(convertPosting(pricesLookup), balancedPostings);
 
   return R.assoc('postings', convertedPostings, transaction);
