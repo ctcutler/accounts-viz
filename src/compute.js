@@ -155,13 +155,20 @@ const addTime = (d, n, granularity) => moment(d).add(n, granularity).toDate();
 const dateDiff = (start, end, granularity) => moment(end).diff(moment(start), granularity);
 const dateMap = R.compose(R.fromPairs, R.map(R.adjust(date => date.toString(), 0)));
 
+/* Input: granularity, start, end
+ * Output: list of dates from start to end at granularity
+ */
+const makeDates = (granularity, start, end) => {
+  const count = dateDiff(start, end, granularity) + 1;
+  return R.times(n => addTime(start, n, granularity), count);
+}
+
 /* Input: granularity, start, end, list of data points
  * Output: list of data points from start to end with all missing dates filled in
  */
 const addEmptyPoints = (granularity, start, end) => points => {
   const existingMap = dateMap(points);
-  const count = dateDiff(start, end, granularity) + 1;
-  const dates = R.times(n => addTime(start, n, granularity), count);
+  const dates = makeDates(granularity, start, end);
   const newPoints = R.map(d => [d, R.defaultTo(Decimal(0), existingMap[d.toString()])], dates);
   const newMap = dateMap(newPoints);
   const merged = R.merge(existingMap, newMap);
@@ -206,5 +213,6 @@ const hydrate = R.compose(
 )
 
 export {
-  filterByAccount, filterByTime, balance, dataPoints, addEmptyPoints, accumulateValues, hydrate
+  filterByAccount, filterByTime, balance, dataPoints, addEmptyPoints, accumulateValues,
+  hydrate, makeDates
 };
