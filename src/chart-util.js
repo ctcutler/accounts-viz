@@ -6,10 +6,12 @@ import {
 
 const formatDate = R.invoker(1, "toLocaleDateString")("en-US");
 const formatDecimal = R.invoker(0, 'valueOf');
-const dataSeries = (granularity, pattern, start, end, accumulate) => {
+const dataSeries = options => {
+  const { granularity, pattern, start, end, accumulate, negate } = options;
   const { prices, transactions } = hydrate(parsed);
   return R.compose(
     R.map(formatDecimal),
+    d => negate ? R.map(x => x.mul(-1), d) : d,
     R.pluck(1),
     d => accumulate ? accumulateValues(d) : d,
     addEmptyPoints(granularity, start, end),

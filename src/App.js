@@ -8,9 +8,15 @@ class App extends Component {
     const end = new Date("2018/09/01");
     const granularity = "month";
     const labels = dateLabels(granularity, start, end);
-    const assetSeries = dataSeries(granularity, /^Assets/, start, end, true);
-    const liabilitySeries = dataSeries(granularity, /^Liabilities/, start, end, true);
+    /*
+    const assetSeries = dataSeries(
+      { granularity, pattern: /^Assets/, start, end, accumulate: true, negate: false }
+    );
+    const liabilitySeries = dataSeries(
+      { granularity, pattern: /^Liabilities/, start, end, accumulate: true, negate: false }
+    );
     const netWorthSeries = sumSeries(assetSeries, liabilitySeries);
+    // FIXME: curve fit project into future
     const datasets = [
       {
         data: assetSeries,
@@ -23,6 +29,23 @@ class App extends Component {
       {
         data: netWorthSeries,
         label: "Net Worth"
+      }
+    ];
+    */
+    const expenseSeries = dataSeries(
+      { granularity, pattern: /^Expenses/, start, end, accumulate: false, negate: true }
+    );
+    const incomeSeries = dataSeries(
+      { granularity, pattern: /^Income/, start, end, accumulate: false, negate: true }
+    );
+    const datasets = [
+      {
+        data: expenseSeries,
+        label: "Expenses"
+      },
+      {
+        data: incomeSeries,
+        label: "Income"
       }
     ];
     const data = { labels, datasets };
