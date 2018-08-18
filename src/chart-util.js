@@ -23,4 +23,6 @@ const dateLabels = (granularity, start, end) => {
   return R.map(formatDate, dates);
 };
 
-export { dateLabels, dataSeries };
+const sumSeries = R.zipWith(R.add);
+
+export { dateLabels, dataSeries, sumSeries };

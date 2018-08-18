@@ -1,6 +1,6 @@
 import Chart from 'chart.js';
 import React, { Component } from 'react';
-import { dateLabels, dataSeries } from './chart-util.js';
+import { dateLabels, dataSeries, sumSeries } from './chart-util.js';
 
 class App extends Component {
   componentDidMount() {
@@ -10,6 +10,7 @@ class App extends Component {
     const labels = dateLabels(granularity, start, end);
     const assetSeries = dataSeries(granularity, /^Assets/, start, end, true);
     const liabilitySeries = dataSeries(granularity, /^Liabilities/, start, end, true);
+    const netWorthSeries = sumSeries(assetSeries, liabilitySeries);
     const datasets = [
       {
         data: assetSeries,
@@ -18,6 +19,10 @@ class App extends Component {
       {
         data: liabilitySeries,
         label: "Liabilities"
+      },
+      {
+        data: netWorthSeries,
+        label: "Net Worth"
       }
     ];
     const data = { labels, datasets };
