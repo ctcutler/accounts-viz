@@ -38,6 +38,7 @@ class App extends Component {
     const incomeSeries = dataSeries(
       { granularity, pattern: /^Income/, start, end, accumulate: false, negate: true }
     );
+    const savingRateSeries = sumSeries(expenseSeries, incomeSeries);
     const datasets = [
       {
         data: expenseSeries,
@@ -46,6 +47,10 @@ class App extends Component {
       {
         data: incomeSeries,
         label: "Income"
+      },
+      {
+        data: savingRateSeries,
+        label: "Saving Rate"
       }
     ];
     const data = { labels, datasets };
