@@ -1,6 +1,6 @@
 import Chart from 'chart.js';
 import React, { Component } from 'react';
-import { dateLabels, dataSeries, sumSeries } from './chart-util.js';
+import { dateLabels, dataSeries, sumSeries, trendSeries } from './chart-util.js';
 
 class App extends Component {
   componentDidMount() {
@@ -32,6 +32,17 @@ class App extends Component {
       }
     ];
     */
+
+    /* Ideas:
+     * - curve fit (linear regression?  something else?)
+     * - average
+     *   - average of everything in the 95th percentile
+     *   - or standard deviation
+     * - anova?
+     * - median
+     * - average or median per year
+     * - average of the N surrounding data points
+     */
     const expenseSeries = dataSeries(
       { granularity, pattern: /^Expenses/, start, end, accumulate: false, negate: true }
     );
@@ -39,6 +50,7 @@ class App extends Component {
       { granularity, pattern: /^Income/, start, end, accumulate: false, negate: true }
     );
     const savingRateSeries = sumSeries(expenseSeries, incomeSeries);
+    const savingTrendSeries = trendSeries(savingRateSeries);
     const datasets = [
       {
         data: expenseSeries,
@@ -51,6 +63,10 @@ class App extends Component {
       {
         data: savingRateSeries,
         label: "Saving Rate"
+      },
+      {
+        data: savingTrendSeries,
+        label: "Saving Trend"
       }
     ];
     const data = { labels, datasets };

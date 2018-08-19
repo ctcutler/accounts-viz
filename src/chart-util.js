@@ -27,4 +27,26 @@ const dateLabels = (granularity, start, end) => {
 
 const sumSeries = R.zipWith(R.add);
 
-export { dateLabels, dataSeries, sumSeries };
+// base on the formula found here: http://math.stackexchange.com/questions/204020/what-is-the-equation-used-to-calculate-a-linear-trendline/204021#204021
+const lrSlope = (xs, ys) =>
+  (
+    (xs.length * R.sum(R.zipWith(R.multiply, xs, ys)))
+    -
+    (R.sum(xs) * R.sum(ys))
+  )
+  /
+  (
+    (xs.length * R.sum(R.map(x => x * x, xs)))
+    -
+    (R.sum(xs) * R.sum(xs))
+  );
+const lrOffset = (xs, ys, slope) => (R.sum(ys) - (slope * R.sum(xs))) / xs.length;
+
+const trendSeries = s => {
+  const rateIndexes = R.range(0, s.length);
+  const m = lrSlope(rateIndexes, s);
+  const b = lrOffset(rateIndexes, s, m);
+  return R.map(R.compose(R.add(b), R.multiply(m)), rateIndexes);
+};
+
+export { dateLabels, dataSeries, sumSeries, trendSeries };
