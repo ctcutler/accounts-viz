@@ -1,8 +1,17 @@
 import Chart from 'chart.js';
 import React, { Component } from 'react';
 import { dateLabels, dataSeries, sumSeries, trendSeries } from './chart-util.js';
+import './App.css';
+
+const NET_WORTH = 'net worth';
+const SAVING_RATE = 'saving rate';
 
 class App extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { visible: NET_WORTH };
+  }
+
   componentDidMount() {
     const start = new Date("2014/01/01");
     const end = new Date("2018/09/01");
@@ -80,10 +89,23 @@ class App extends Component {
     const ctx = document.getElementById("myChart").getContext('2d');
     new Chart(ctx, { type: 'line', data, options });
   }
+
+  handleMenuClick(e, view) {
+    console.log(view);
+  }
+
   render() {
     return (
-      <div>
-        <canvas id="myChart"></canvas>
+      <div className="container">
+        <div className="menu">
+           <div className="menuItem"
+                onClick={e => this.handleMenuClick(e, NET_WORTH)}>Net Worth</div>
+           <div className="menuItem"
+                onClick={e => this.handleMenuClick(e, SAVING_RATE)}>Saving Rate</div>
+        </div>
+        <div className="main">
+          <canvas id="myChart"></canvas>
+        </div>
       </div>
     );
   }
