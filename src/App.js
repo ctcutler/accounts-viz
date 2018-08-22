@@ -29,9 +29,9 @@ class App extends Component {
     return (
       <div className="container">
         <div className="menu">
-           <div className="menuItem"
+           <div className={this.state.visible === NET_WORTH ? 'selected menuItem' : 'menuItem'}
                 onClick={e => this.handleMenuClick(e, NET_WORTH)}>Net Worth</div>
-           <div className="menuItem"
+           <div className={this.state.visible === SAVING_RATE ? 'selected menuItem' : 'menuItem'}
                 onClick={e => this.handleMenuClick(e, SAVING_RATE)}>Saving Rate</div>
         </div>
         <div className="main">

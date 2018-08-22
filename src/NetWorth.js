@@ -38,7 +38,8 @@ class NetWorth extends Component {
         }
       }
     };
-    const ctx = document.getElementById("netWorthChart").getContext('2d');
+    const ctx = document.getElementById("netWorthChart").getContext("2d");
+    Chart.defaults.global.defaultFontFamily = "'Roboto Slab', serif";
     new Chart(ctx, { type: 'line', data, options });
   }
 

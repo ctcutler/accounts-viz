@@ -54,6 +54,7 @@ class SavingRate extends Component {
       }
     };
     const ctx = document.getElementById("savingRateChart").getContext('2d');
+    Chart.defaults.global.defaultFontFamily = "'Roboto Slab', serif";
     new Chart(ctx, { type: 'line', data, options });
   }
 
