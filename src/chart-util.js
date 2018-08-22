@@ -42,11 +42,14 @@ const lrSlope = (xs, ys) =>
   );
 const lrOffset = (xs, ys, slope) => (R.sum(ys) - (slope * R.sum(xs))) / xs.length;
 
-const trendSeries = s => {
+/* If length is truthy, will return trend series that is that long, rather than length
+ * of input series. */
+const trendSeries = (s, length) => {
   const rateIndexes = R.range(0, s.length);
+  const extendedRateIndexes = R.range(0, length ? length : s.length);
   const m = lrSlope(rateIndexes, s);
   const b = lrOffset(rateIndexes, s, m);
-  return R.map(R.compose(R.add(b), R.multiply(m)), rateIndexes);
+  return R.map(R.compose(R.add(b), R.multiply(m)), extendedRateIndexes);
 };
 
 export { dateLabels, dataSeries, sumSeries, trendSeries };

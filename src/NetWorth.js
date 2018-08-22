@@ -1,14 +1,17 @@
 import Chart from 'chart.js';
+import moment from "moment";
 import React, { Component } from 'react';
-import { dateLabels, dataSeries, sumSeries } from './chart-util.js';
+import { dateLabels, dataSeries, sumSeries, trendSeries } from './chart-util.js';
 
 class NetWorth extends Component {
 
   componentDidMount() {
     const start = new Date("2014/01/01");
     const end = new Date("2018/09/01");
+    const projection = 12;
     const granularity = "month";
-    const labels = dateLabels(granularity, start, end);
+    const future = moment(end).add(projection, granularity).toDate();
+    const labels = dateLabels(granularity, start, future);
     const assetSeries = dataSeries(
       { granularity, pattern: /^Assets/, start, end, accumulate: true, negate: false }
     );
@@ -16,6 +19,7 @@ class NetWorth extends Component {
       { granularity, pattern: /^Liabilities/, start, end, accumulate: true, negate: false }
     );
     const netWorthSeries = sumSeries(assetSeries, liabilitySeries);
+    const netWorthTrendSeries = trendSeries(netWorthSeries, netWorthSeries.length + projection);
     const datasets = [
       {
         data: assetSeries,
@@ -28,6 +32,10 @@ class NetWorth extends Component {
       {
         data: netWorthSeries,
         label: "Net Worth"
+      },
+      {
+        data: netWorthTrendSeries,
+        label: "Net Worth Trend"
       }
     ];
     const data = { labels, datasets };
