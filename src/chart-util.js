@@ -1,7 +1,8 @@
 import * as R from 'ramda';
 import parsed from './parsed';
 import {
-  filterByAccount, balance, dataPoints, addEmptyPoints, accumulateValues, hydrate, makeDates
+  filterByAccount, balance, dataPoints, addEmptyPoints, accumulateValues, hydrate, makeDates,
+  filterByTime
 } from './compute';
 
 const formatDate = R.invoker(1, "toLocaleDateString")("en-US");
@@ -14,6 +15,7 @@ const dataSeries = options => {
     R.map(formatDecimal),
     ifTrue(negate, R.map(x => x.mul(-1))),
     R.pluck(1),
+    filterByTime(start, end),
     ifTrue(accumulate, accumulateValues),
     addEmptyPoints(granularity, start, end),
     dataPoints(pattern, granularity),

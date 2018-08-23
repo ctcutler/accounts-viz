@@ -6,8 +6,8 @@ import { dateLabels, dataSeries, sumSeries, trendSeries } from './chart-util.js'
 class NetWorth extends Component {
 
   componentDidMount() {
-    const start = new Date("2014/01/01");
-    const end = new Date("2018/09/01");
+    const start = new Date("2014/11/01");
+    const end = new Date("2018/02/01");
     const projection = 12;
     const granularity = "month";
     const future = moment(end).add(projection, granularity).toDate();

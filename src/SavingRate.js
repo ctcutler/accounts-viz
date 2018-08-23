@@ -4,8 +4,8 @@ import { dateLabels, dataSeries, sumSeries, trendSeries } from './chart-util.js'
 
 class SavingRate extends Component {
   componentDidMount() {
-    const start = new Date("2014/01/01");
-    const end = new Date("2018/09/01");
+    const start = new Date("2014/11/01");
+    const end = new Date("2018/02/01");
     const granularity = "month";
     const labels = dateLabels(granularity, start, end);
 
