@@ -2,6 +2,7 @@ import Chart from 'chart.js';
 import moment from "moment";
 import React, { Component } from 'react';
 import { dateLabels, dataSeries, sumSeries, trendSeries } from './chart-util.js';
+import { LIGHT_GREEN, BLUE, LIGHT_RED, ORANGE } from './colors.js';
 
 class NetWorth extends Component {
 
@@ -22,21 +23,39 @@ class NetWorth extends Component {
     const netWorthTrendSeries = trendSeries(netWorthSeries, netWorthSeries.length + projection);
     const datasets = [
       {
-        data: assetSeries,
-        label: "Assets"
+        data: netWorthTrendSeries,
+        borderColor: BLUE,
+        backgroundColor: BLUE,
+        fill: false,
+        pointRadius: 0,
+        pointHitRadius: 10,
+        label: "Net Worth Trend"
       },
       {
-        data: liabilitySeries,
-        label: "Liabilities"
-      },
-      {
+        borderColor: ORANGE,
+        backgroundColor: ORANGE,
+        fill: false,
+        pointRadius: 0,
+        pointHitRadius: 10,
         data: netWorthSeries,
         label: "Net Worth"
       },
       {
-        data: netWorthTrendSeries,
-        label: "Net Worth Trend"
-      }
+        data: assetSeries,
+        borderColor: LIGHT_GREEN,
+        backgroundColor: LIGHT_GREEN,
+        pointRadius: 0,
+        pointHitRadius: 10,
+        label: "Assets"
+      },
+      {
+        data: liabilitySeries,
+        borderColor: LIGHT_RED,
+        backgroundColor: LIGHT_RED,
+        pointRadius: 0,
+        pointHitRadius: 10,
+        label: "Liabilities"
+      },
     ];
     const data = { labels, datasets };
     const options = {
