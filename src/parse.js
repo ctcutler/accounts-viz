@@ -135,7 +135,7 @@ if (require.main === module) {
   // FIXME: file names should probably be a command line arguments
   const fileContent = fs.readFileSync('accounts.dat', 'utf8');
   const parsed = parse(fileContent);
-  const jsonString = JSON.stringify(parsed);
+  const jsonString = JSON.stringify(parsed, null, 2);
   const jsString = `const parsed = ${jsonString};\n\nexport default parsed;\n`;
   fs.writeFile('src/parsed.js', jsString, 'utf8');
 } else {
