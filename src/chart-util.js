@@ -1,5 +1,6 @@
 import * as R from 'ramda';
 import parsed from './parsed';
+import moment from "moment";
 import {
   filterByAccount, balance, dataPoints, addEmptyPoints, accumulateValues, hydrate, makeDates,
   filterByTime
@@ -55,4 +56,8 @@ const trendSeries = (s, length) => {
   return R.map(R.compose(R.add(b), R.multiply(m)), extendedRateIndexes);
 };
 
-export { dateLabels, dataSeries, sumSeries, trendSeries };
+const START = new Date("2014/11/01");
+const END = moment().startOf("month").toDate();
+const dateRange = () => [ START, END ];
+
+export { dateLabels, dataSeries, sumSeries, trendSeries, dateRange };

@@ -1,24 +1,12 @@
 import Chart from 'chart.js';
 import React, { Component } from 'react';
-import { dateLabels, dataSeries, sumSeries, trendSeries } from './chart-util.js';
+import { dateLabels, dataSeries, sumSeries, trendSeries, dateRange } from './chart-util.js';
 
 class SavingRate extends Component {
   componentDidMount() {
-    const start = new Date("2014/11/01");
-    const end = new Date("2018/02/01");
+    const [start, end] = dateRange();
     const granularity = "month";
     const labels = dateLabels(granularity, start, end);
-
-    /* Ideas:
-     * - curve fit (linear regression?  something else?)
-     * - average
-     *   - average of everything in the 95th percentile
-     *   - or standard deviation
-     * - anova?
-     * - median
-     * - average or median per year
-     * - average of the N surrounding data points
-     */
     const expenseSeries = dataSeries(
       { granularity, pattern: /^Expenses/, start, end, accumulate: false, negate: true }
     );

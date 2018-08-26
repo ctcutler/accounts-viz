@@ -1,14 +1,13 @@
 import Chart from 'chart.js';
 import moment from "moment";
 import React, { Component } from 'react';
-import { dateLabels, dataSeries, sumSeries, trendSeries } from './chart-util.js';
+import { dateLabels, dataSeries, sumSeries, trendSeries, dateRange } from './chart-util.js';
 import { LIGHT_GREEN, BLUE, LIGHT_RED, ORANGE } from './colors.js';
 
 class NetWorth extends Component {
 
   componentDidMount() {
-    const start = new Date("2014/11/01");
-    const end = new Date("2018/02/01");
+    const [start, end] = dateRange();
     const projection = 12;
     const granularity = "month";
     const future = moment(end).add(projection, granularity).toDate();
