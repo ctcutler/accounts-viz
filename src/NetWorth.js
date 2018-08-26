@@ -31,12 +31,12 @@ class NetWorth extends Component {
         label: "Net Worth Trend"
       },
       {
+        data: netWorthSeries,
         borderColor: ORANGE,
         backgroundColor: ORANGE,
         fill: false,
         pointRadius: 0,
         pointHitRadius: 10,
-        data: netWorthSeries,
         label: "Net Worth"
       },
       {

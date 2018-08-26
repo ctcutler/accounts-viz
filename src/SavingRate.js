@@ -1,6 +1,7 @@
 import Chart from 'chart.js';
 import React, { Component } from 'react';
 import { dateLabels, dataSeries, sumSeries, trendSeries, dateRange } from './chart-util.js';
+import { LIGHT_GREEN, BLUE, LIGHT_RED, ORANGE } from './colors.js';
 
 class SavingRate extends Component {
   componentDidMount() {
@@ -17,21 +18,39 @@ class SavingRate extends Component {
     const savingTrendSeries = trendSeries(savingRateSeries);
     const datasets = [
       {
-        data: expenseSeries,
-        label: "Expenses"
-      },
-      {
-        data: incomeSeries,
-        label: "Income"
-      },
-      {
         data: savingRateSeries,
+        borderColor: ORANGE,
+        backgroundColor: ORANGE,
+        fill: false,
+        pointRadius: 0,
+        pointHitRadius: 10,
         label: "Saving Rate"
       },
       {
         data: savingTrendSeries,
+        borderColor: BLUE,
+        backgroundColor: BLUE,
+        fill: false,
+        pointRadius: 0,
+        pointHitRadius: 10,
         label: "Saving Trend"
-      }
+      },
+      {
+        data: expenseSeries,
+        borderColor: LIGHT_RED,
+        backgroundColor: LIGHT_RED,
+        pointRadius: 0,
+        pointHitRadius: 10,
+        label: "Expenses"
+      },
+      {
+        data: incomeSeries,
+        borderColor: LIGHT_GREEN,
+        backgroundColor: LIGHT_GREEN,
+        pointRadius: 0,
+        pointHitRadius: 10,
+        label: "Income"
+      },
     ];
     const data = { labels, datasets };
     const options = {
