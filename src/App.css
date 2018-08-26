@@ -17,11 +17,10 @@
   cursor: pointer;
   font-family: 'Roboto Slab', serif;
   font-size: 150%;
-  text-align: right;
 }
 
 .selected {
-  background-color: #aaa;
+  background-color: #2B9EB3;
 }
 
 .main {
