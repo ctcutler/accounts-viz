@@ -45,12 +45,12 @@ it('parses transactions', () => {
         account: "Assets:Savings Account",
         amount: new Decimal("146.0640"),
         commodity: "QCEQRX",
-        price: undefined
+        price: new Decimal("218.8056")
       },
       {
         account: "Equity:Initial Balances",
-        amount: undefined,
-        commodity: undefined,
+        amount: new Decimal("-31959.6211584"),
+        commodity: "$",
         price: undefined
       },
     ]
@@ -99,7 +99,7 @@ it('parses transactions', () => {
         account: "Assets:Savings Account",
         amount: new Decimal("1.4005"),
         commodity: "QCEQRX",
-        price: new Decimal("142.8056")
+        price: undefined
       },
       {
         account: "Assets:Savings Account",
