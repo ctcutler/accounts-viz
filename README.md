@@ -17,6 +17,12 @@ This project contains code to parse a [Ledger](https://www.ledger-cli.org/)-form
 - As a *person managing their finances* I want to *know how much I save every month (median over the last 12 months)* so that I *can plan*
 - As a *person managing their finances* I want to *know how my saving rate is trending* so that I *can adjust/maintain my behavior*.
 
+## Asset Breakdown
+- As a *person thinking about their net worth* I want to *see a breakdown of my assets by type* so that I *understand the liquidity and risk inherent in my net worth*.
+- Examples
+  - This expensive wristwatch is worth N lunches
+  - Remodeling the kitchen is equivalent to N months of mortgage payments
+
 ## Account History
 - As a *person managing their finances* I want to *know how how much is spent in a particular way* so that I *can understand how my behavior has changed over time*.
 - Examples
