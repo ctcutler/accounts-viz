@@ -1,11 +1,20 @@
 # Overview
 This project contains code to parse a [Ledger](https://www.ledger-cli.org/)-formatted file and render the data as various charts.
 
+# Screenshots
+## Net Worth
+![Net Worth Screenshot](net-worth-screenshot.png)
+
+## Saving Rate
+![Saving Rate Screenshot](saving-rate-screenshot.png)
+
+
 # Running the code
 - Generate parsed data: `npm run-script parse`
   - translates [Ledger](https://www.ledger-cli.org/)-formatted file `accounts.dat` into `src/parsed.js` that provides the data to the charting code
 - Start the server: `npm start`
 - Run tests: `npm test`
+
 
 # User Stories
 ## Net Worth
