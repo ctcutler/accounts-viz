@@ -4,9 +4,11 @@ This project contains code to parse a [Ledger](https://www.ledger-cli.org/)-form
 # Screenshots
 ## Net Worth
 ![Net Worth Screenshot](net-worth-screenshot.png)
+Shows assets, liabilities, net worth (i.e. assets - liabilities), and a linear regression trend line over time.  (Axes omitted for privacy.)
 
 ## Saving Rate
 ![Saving Rate Screenshot](saving-rate-screenshot.png)
+Shows income, expenses, saving rate (i.e. income - expenses), and a linear regression trend line over time.  (Axes omitted for privacy.)
 
 
 # Running the code
